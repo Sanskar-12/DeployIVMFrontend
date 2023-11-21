@@ -5,7 +5,10 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import MyModal from "./MyModal";
 import { useDispatch, useSelector } from "react-redux";
-import { changeStatusActions, getAllInwardActions } from "../../Actions/inwardActions";
+import {
+  changeStatusActions,
+  getAllInwardActions,
+} from "../../Actions/inwardActions";
 import Loader from "../Loader/Loader";
 
 const Inward = () => {
@@ -76,9 +79,9 @@ const Inward = () => {
   };
 
   const handleChange = async (event, orderId) => {
-    event.preventDefault()
+    event.preventDefault();
 
-    await dispatch(changeStatusActions(orderId,event.target.value))
+    await dispatch(changeStatusActions(orderId, event.target.value));
     dispatch(getAllInwardActions());
   };
 
@@ -195,75 +198,60 @@ const Inward = () => {
                 <table className="w-full shadow-md  border-2 rounded-2xl">
                   <thead className="w-full">
                     <tr className="border border-solid">
-                      <th className="text-md px-6 py-3">
-                        Order Id
-                      </th>
-                      <th className="text-md px-6 py-3">
-                        Requisitioner Name
-                      </th>
-                      <th className="text-md px-6 py-3">
-                        Department
-                      </th>
-                      <th className="text-md px-6 py-3">
-                        Lab
-                      </th>
-                      <th className="text-md px-6 py-3">
-                        Item Type
-                      </th>
-                      <th className="text-md px-6 py-3">
-                        Approved By
-                      </th>
-                      <th className="text-md px-6 py-3 ">
-                        Approver Remark
-                      </th>
-                      <th className="text-md px-6 py-3 ">
-                        Status
-                      </th>
+                      <th className="text-md px-6 py-3">Order Id</th>
+                      <th className="text-md px-6 py-3">Requisitioner Name</th>
+                      <th className="text-md px-6 py-3">Department</th>
+                      <th className="text-md px-6 py-3">Lab</th>
+                      <th className="text-md px-6 py-3">Item Type</th>
+                      <th className="text-md px-6 py-3">Approved By</th>
+                      <th className="text-md px-6 py-3 ">Approver Remark</th>
+                      <th className="text-md px-6 py-3 ">Status</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white">
                     {inward?.map((order) => (
-                <tr key={order?._id}>
-                  <th className="text-md text-center border-b px-6 py-3 text-[#5C59E8]">
-                    {order?._id.substring(0, 6)}
-                  </th>
-                  <td className="text-md text-center px-6  py-3 border-b">
-                    {order?.requisition_name}
-                  </td>
-                  <td className="text-md  border-b text-center px-6 py-3">
-                    {order?.department}
-                  </td>
-                  <td className="text-md text-center  border-b px-6 py-3">
-                    {order?.lab}
-                  </td>
-                  <td className="text-md text-center  border-b px-6 py-3">
-                    {order?.itemtype}
-                  </td>
-                  <td className="text-md text-center  border-b px-6 py-3">
-                    {order?.verifierName}
-                  </td>
+                      <tr key={order?._id}>
+                        <th className="text-md text-center border-b px-6 py-3 text-[#5C59E8]">
+                          <Link to={`/order-details-page/${order._id}`}>
+                            {order?._id.substring(0, 6)}
+                          </Link>
+                        </th>
+                        <td className="text-md text-center px-6  py-3 border-b">
+                          {order?.requisition_name}
+                        </td>
+                        <td className="text-md  border-b text-center px-6 py-3">
+                          {order?.department}
+                        </td>
+                        <td className="text-md text-center  border-b px-6 py-3">
+                          {order?.lab}
+                        </td>
+                        <td className="text-md text-center  border-b px-6 py-3">
+                          {order?.itemtype}
+                        </td>
+                        <td className="text-md text-center  border-b px-6 py-3">
+                          {order?.verifierName}
+                        </td>
 
-                  <td className="text-md text-center  border-b px-6 py-3">
-                    {order?.approverremark}
-                  </td>
-              
+                        <td className="text-md text-center  border-b px-6 py-3">
+                          {order?.approverremark}
+                        </td>
 
-                  <td className="text-md border-b text-center ">
-                    <select
-                      className="p-2 border rounded-md"
-                      value={order?.orderStatus}
-                      onChange={(e) => handleChange(e, order?._id)}
-                      defaultValue={"Select an option"}
-                    >
-                      <option value="">Select an option</option>
-                      <option value="Receieved">Receieved</option>
-                      <option value="Cancelled">Cancelled</option>
-                      <option value="Issues">Issues</option>
-                      <option value="Others">Other</option>
-                    </select>
-                  </td>
-                </tr>
-              ))}
+                        <td className="text-md border-b text-center ">
+                          <select
+                            className="p-2 border rounded-md"
+                            value={order?.orderStatus}
+                            onChange={(e) => handleChange(e, order?._id)}
+                            defaultValue={"Select an option"}
+                          >
+                            <option value="">Select an option</option>
+                            <option value="Receieved">Receieved</option>
+                            <option value="Cancelled">Cancelled</option>
+                            <option value="Issues">Issues</option>
+                            <option value="Others">Other</option>
+                          </select>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
