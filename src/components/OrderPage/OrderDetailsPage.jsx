@@ -38,8 +38,8 @@ const OrderDetailsPage = () => {
   if (order) {
     useEffect(() => {
       let newTotalCost = 0;
-      order.items.forEach(
-        (item) => (newTotalCost = newTotalCost + item.quantity * item.unitPrice)
+      order?.items?.forEach(
+        (item) => (newTotalCost = newTotalCost + item?.quantity * item?.unitPrice)
       );
       setTotalCost(newTotalCost);
     }, [order]);
