@@ -28,3 +28,29 @@ export const createVendorAction=(formData)=> async (dispatch)=>{
 
 
     }
+
+
+    
+export const getVendorDataByIDAction=(id)=> async (dispatch)=>{
+  try {
+      dispatch({
+        type: "getVendorDataByIdRequest",
+      });
+  
+     
+      const {data}= await axios.get(`${server}/vendor/get-vendor-byId/${id}`,{
+        withCredentials: true,
+      });
+      dispatch({
+          type: "getVendorDataByIdSuccess",
+          payload: data.vendor, 
+        });
+      } catch (error) {
+        dispatch({
+          type: "getVendorDataByIdFail",
+          payload: error.response.data.message,
+        });
+      }
+
+
+  }

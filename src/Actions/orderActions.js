@@ -281,3 +281,29 @@ export const getAllOrderArchivedActions=()=>async(dispatch)=>{
         });
   }
 }
+
+
+export const getAllOrderByIDActions=(id)=>async(dispatch)=>{
+  try {
+      dispatch({
+          type: "getAllOrderByIDRequest",
+        });
+    
+      
+    
+        const { data } = await axios.get(`${server}/order/getById/${id}`,{
+          withCredentials: true,
+        });
+    
+        dispatch({
+          type: "getAllOrderByIDSuccess",
+          payload: data.order,
+        });
+  } catch (error) {
+      dispatch({
+          type: "getAllOrderByIDFail",
+          payload: error.response.data.message,
+        });
+  }
+}
+

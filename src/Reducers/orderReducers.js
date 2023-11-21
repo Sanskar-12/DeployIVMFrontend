@@ -149,4 +149,17 @@ export const getAllOrders = createReducer(intialState, {
     state.loading = false;
     state.error = action.payload;
   },
+
+  
+  getAllOrderByIDRequest: (state) => {
+    state.loading = true;
+  },
+  getAllOrderByIDSuccess: (state, action) => {
+    state.loading = false;
+    state.order = action.payload;
+  },
+  getAllOrderByIDFail: (state, action) => {
+    state.loading = false;
+    state.error = action.payload;
+  },
 });

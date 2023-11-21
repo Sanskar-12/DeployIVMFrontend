@@ -28,4 +28,16 @@ const intialState={
         state.loading = false;
         state.error = action.payload;
       },
+
+      getVendorDataByIdRequest: (state) => {
+        state.loading = true;
+      },
+      getVendorDataByIdSuccess: (state, action) => {
+        state.loading = false;
+        state.vendor = action.payload;
+      },
+      getVendorDataByIdFail: (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      },
  });
