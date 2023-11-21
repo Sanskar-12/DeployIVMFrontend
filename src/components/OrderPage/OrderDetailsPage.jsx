@@ -27,21 +27,23 @@ const OrderDetailsPage = () => {
     dispatch(getAllOrderByIDActions(orderId));
   }, [orderId, dispatch]);
 
-  useEffect(() => {
-    const id = order?.vendor_id;
-    dispatch(getVendorDataByIDAction(id));
-  }, [order, dispatch]);
+ 
+  if (order) {
+    useEffect(() => {
+      const id = order?.vendor_id;
+      dispatch(getVendorDataByIDAction(id));
+    }, [order, dispatch]);
+  }
 
-  
-  useEffect(() => {
-    let newTotalCost = 0;
-    order?.items?.forEach((item)=>(
-      newTotalCost=newTotalCost+item?.quantity*item?.unitPrice
-    ))
-    setTotalCost(newTotalCost);
-  }, [order]);
-
-
+  if (order) {
+    useEffect(() => {
+      let newTotalCost = 0;
+      order.items.forEach(
+        (item) => (newTotalCost = newTotalCost + item.quantity * item.unitPrice)
+      );
+      setTotalCost(newTotalCost);
+    }, [order]);
+  }
   
   return (
     <>
