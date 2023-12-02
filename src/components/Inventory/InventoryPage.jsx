@@ -394,7 +394,7 @@ const InventoryPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {products?.map((products) => (
+                  {products?.products?.map((products) => (
                     <tr key={products?._id}>
                       <td className="text-md border-b text-center px-6  py-3">
                         <input
