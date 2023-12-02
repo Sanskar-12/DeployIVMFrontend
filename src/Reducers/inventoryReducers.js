@@ -8,9 +8,7 @@ export const getAllInventory = createReducer(intialState, {
   },
   getAllInventorySuccess: (state, action) => {
     state.loading = false;
-    state.products = action.payload.products;
-    state.productCount=action.payload.productCount;
-    state.resultPerPage=action.payload.resultPerPage
+    state.products=action.payload
   },
   getAllInventoryFail: (state, action) => {
     state.loading = false;

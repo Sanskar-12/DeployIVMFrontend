@@ -15,6 +15,33 @@ import Loader from "../Loader/Loader";
 import moment from "moment";
 import { getVendorDataByIDAction } from "../../Actions/vendorActions";
 
+const Products = [
+  {
+    name: "Chalk",
+    id: 1,
+    quantity: 3,
+    price: 100,
+  },
+  {
+    name: "Duster",
+    id: 2,
+    quantity: 3,
+    price: 100,
+  },
+  {
+    name: "Coffee",
+    id: 3,
+    quantity: 4,
+    price: 1000,
+  },
+  {
+    name: "Book",
+    id: 4,
+    quantity: 13,
+    price: 10,
+  },
+];
+
 const OrderDetailsPage = () => {
   const [totalCost, setTotalCost] = useState(0);
   const { orderId } = useParams();
@@ -23,24 +50,23 @@ const OrderDetailsPage = () => {
 
   const { order, loading } = useSelector((state) => state.orders);
   const { vendor } = useSelector((state) => state.vendors);
+
   useEffect(() => {
     dispatch(getAllOrderByIDActions(orderId));
   }, [orderId, dispatch]);
 
- 
-    useEffect(() => {
-      const id = order?.vendor_id;
-      dispatch(getVendorDataByIDAction(id));
-    }, [order, dispatch]);
+  useEffect(() => {
+    const id = order?.vendor_id;
+    dispatch(getVendorDataByIDAction(id));
+  }, [order, dispatch]);
 
-    useEffect(() => {
-      let newTotalCost = 0;
-      order?.items?.forEach(
-        (item) => (newTotalCost = newTotalCost + item?.quantity * item.unitPrice)
-      );
-      setTotalCost(newTotalCost);
-    }, [order]);
-  
+  useEffect(() => {
+    let newTotalCost = 0;
+    order?.items?.forEach(
+      (item) => (newTotalCost = newTotalCost + item?.quantity * item.unitPrice)
+    );
+    setTotalCost(newTotalCost);
+  }, [order]);
   return (
     <>
       {loading ? (
@@ -65,10 +91,10 @@ const OrderDetailsPage = () => {
                 </Link>
               </div>
             </div>
-            <div className="flex flex-row items-start justify-between">
-              <div className="flex flex-col bg-white p-6 m-4 w-1/4  border-2  border-[#E0E2E7] rounded-md">
+            <div className="flex flex-row h-1/2  items-start justify-between">
+              <div className="flex flex-col bg-white p-6 m-4   border-2  border-[#E0E2E7] rounded-md">
                 <div>
-                  <div className="flex flex-row justify-between">
+                  <div className="flex pt-2 flex-row justify-between">
                     <div className="text-lg font-semibold flex  items-center ">
                       Order {order?._id?.substring(0, 6)}
                     </div>
@@ -76,13 +102,13 @@ const OrderDetailsPage = () => {
                       {order?.orderStatus}
                     </div>
                   </div>
-                  <div className="flex flex-row justify-between mt-2 ">
+                  <div className="flex flex-row justify-between mt-2 pt-4 ">
                     <div className="mt-6 ">
                       <span className="bg-[#E0E2E7] p-2 rounded-full">
                         <StorefrontIcon />
                       </span>
                     </div>
-                    <div className="p-2 font-medium text-md">
+                    <div className="p-2 pb-2 pt-6 font-medium text-md">
                       {order?.department}
                     </div>
                   </div>
@@ -115,21 +141,21 @@ const OrderDetailsPage = () => {
                     <div className="text-lg font-semibold">Details</div>
                   </div>
                   <div className="flex flex-col justify-between mt-4 w-full">
-                    <div className="py-4">
+                    <div className="py-4 mt-6">
                       <span className="bg-[#E0E2E7] p-2 rounded-full">
                         <FmdGoodIcon />
                       </span>
-                      <span className="p-2  font-medium text-md">
+                      <span className="p-2 font-medium text-md">
                         Location : {order?.lab}
                       </span>
                     </div>
-                    <div className="py-4">
+                    <div className="py-4 mt-6">
                       <span className="bg-[#E0E2E7] p-2 rounded-full">
                         <LocalShippingIcon />
                       </span>
                       <span className="p-2  font-medium text-md">Invoice</span>
                     </div>
-                    <div className="py-4 w-full">
+                    <div className="py-4 mt-6 w-full">
                       <span className="bg-[#E0E2E7] p-2 rounded-full">
                         <LocalShippingIcon />
                       </span>
@@ -148,7 +174,7 @@ const OrderDetailsPage = () => {
                   <div className="flex flex-col">
                     <div className="py-6 flex flex-row justify-between ">
                       <div className="flex flex-row">
-                        <div className="bg-[#E0E2E7] p-2 rounded-full">
+                        <div className="bg-[#E0E2E7] p-2  rounded-full">
                           <Person2OutlinedIcon />
                         </div>
                         <div className="p-2  font-medium text-md">Name </div>
@@ -164,7 +190,7 @@ const OrderDetailsPage = () => {
                       </div>
                       <div className="p-2">{vendor?.email} </div>
                     </div>
-                    <div className="py-6 flex flex-row justify-between">
+                    <div className="py-5 flex flex-row justify-between">
                       <div className="flex flex-row">
                         <div className="bg-[#E0E2E7] p-2 rounded-full">
                           <SmartphoneOutlinedIcon />
@@ -208,6 +234,7 @@ const OrderDetailsPage = () => {
                             className="bg-white  border-[#E0E2E7] border-b"
                           >
                             <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                              
                               {data._id.substring(0, 6)}
                             </td>
                             <td className="px-6 py-4 text-[#5C59E8] font-bold">

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { useForm } from "react-hook-form";
@@ -6,12 +6,8 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useDispatch } from "react-redux";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
-import { Worker, Viewer } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
-import { pdfjs } from "react-pdf";
-import axios from "axios";
 import { createPurchaseOrderAction } from "../../Actions/purchaseOrderActions";
-import { server } from "../../store";
 
 function generateTable(rows, columns) {
   const data = [];
@@ -27,26 +23,26 @@ function generateTable(rows, columns) {
 
 const PurchaseOrder = () => {
   const [rows, setRows] = useState(1);
-  const [columns, setColumns] = useState(1);
-  const [tableData, setTableData] = useState([generateTable(rows, columns)]);
-  const [viewPdf, setViewPdf] = useState();
-
-  const [data, setData] = useState([]);
-
+  const [columns, setColumns] = useState(2); // Set initial columns to 2
+  const [tableData, setTableData] = useState([["SR.NO", "Total"]]);
   const addRow = (e) => {
     e.preventDefault();
     const newRow = Array(columns).fill("Add data");
-    setTableData([...tableData, newRow]);
+    setTableData([...tableData.slice(0, 1), newRow, ...tableData.slice(1)]);
     setRows(rows + 1);
-    setData(tableData);
   };
 
   const addColumn = (e) => {
     e.preventDefault();
-    const newTableData = tableData.map((row) => [...row, "Add data"]);
+    const newTableData = tableData.map((row, rowIndex) => {
+      if (rowIndex === 0) {
+        return ["SR.NO", "Add data", ...row.slice(1)];
+      } else {
+        return [...row, "Add data"];
+      }
+    });
     setTableData(newTableData);
     setColumns(columns + 1);
-    setData(tableData);
   };
 
   const removeRow = (e) => {
@@ -55,31 +51,29 @@ const PurchaseOrder = () => {
       const newTableData = tableData.slice(0, -1);
       setTableData(newTableData);
       setRows(rows - 1);
-      setData(tableData);
     }
   };
 
   const removeColumn = (e) => {
     e.preventDefault();
-    if (columns > 1) {
-      const newTableData = tableData.map((row) => row.slice(0, -1));
+    if (columns > 2) {
+      const newTableData = tableData.map((row, rowIndex) => {
+        if (rowIndex === 0) {
+          return ["SR.NO", ...row.slice(2)]; 
+        } else {
+          return row.slice(0, 1).concat(row.slice(2));
+        }
+      });
       setTableData(newTableData);
       setColumns(columns - 1);
-      setData(tableData);
     }
   };
-
   const handleCellChange = (rowIndex, colIndex, e) => {
     e.preventDefault();
-    // console.log('Reacher');
     const newValue = e.target.innerText;
     const newTableData = [...tableData];
     newTableData[rowIndex][colIndex] = newValue;
     setTableData(newTableData);
-    setData(tableData);
-    // console.log(tableData);
-    // console.log('this is table data');
-    // console.log(data);
   };
 
   const {
@@ -105,15 +99,10 @@ const PurchaseOrder = () => {
   });
 
   const dispatch = useDispatch();
-  // const { getworkOrderdata, loading } = useSelector(
-  //   (state) => state.workOrders
-  // );
-
-  const [getworkOrderdata, setGetworkOrderdata] = useState(null);
+  
 
   const handleFormSubmit = (form_data) => {
     console.log(form_data);
-    //  console.log(tableData);
     finalData = {
       general_Information: {
         reference_number: form_data.reference_number,
@@ -154,18 +143,9 @@ const PurchaseOrder = () => {
     pdf.text(20, 60, `Letter: ${finalData.general_Information.letter}`);
 
     pdf.text(20, 70, "Terms and Conditions: ");
-    pdf.text(
-      20,
-      80,
-      `Payment: ${finalData.terms_and_conditions.payment}`
-    );
+    pdf.text(20, 80, `Payment: ${finalData.terms_and_conditions.payment}`);
     pdf.text(20, 90, `Waranty: ${finalData.terms_and_conditions.waranty}`);
-    pdf.text(
-      20,
-      100,
-      `Delivery: ${finalData.terms_and_conditions.delivery}`
-    );
-   
+    pdf.text(20, 100, `Delivery: ${finalData.terms_and_conditions.delivery}`);
 
     pdf.text(20, 150, "Table Data:");
     const columns = Object.keys(finalData.table_Data[0]); // Assuming all rows have the same structure
@@ -191,107 +171,6 @@ const PurchaseOrder = () => {
     reset();
   };
 
-  const generatePDF = () => {
-    const pdf = new jsPDF();
-    // console.log(getworkOrderdata);
-    pdf.setProperties({
-      title: "Your PDF Title",
-      subject: getworkOrderdata?.general_Information?.subject,
-      author: "Your Name",
-    });
-
-    pdf.text(20, 20, "General Information:");
-    pdf.text(
-      20,
-      30,
-      `Reference Number: ${getworkOrderdata?.general_Information?.reference_number}`
-    );
-    pdf.text(
-      20,
-      40,
-      `Subject: ${getworkOrderdata?.general_Information?.to}`
-    );
-    pdf.text(
-      20,
-      50,
-      `Subject: ${getworkOrderdata?.general_Information?.subject}`
-    );
-    pdf.text(
-      20,
-      60,
-      `Letter: ${getworkOrderdata?.general_Information?.letter}`
-    );
-
-    pdf.text(20, 70, "Terms and Conditions: ");
-    pdf.text(
-      20,
-      80,
-      `Payment: ${getworkOrderdata?.terms_and_conditions?.payment}`
-    );
-    pdf.text(
-      20,
-      90,
-      `Waranty: ${getworkOrderdata?.terms_and_conditions?.waranty}`
-    );
-    pdf.text(
-      20,
-      100,
-      `Delivery: ${getworkOrderdata?.terms_and_conditions.delivery}`
-    );
-    
-
-    pdf.text(20, 150, "Table Data:");
-    const columns = Object.keys(getworkOrderdata?.table_Data[0]); // Assuming all rows have the same structure
-
-    const rows = getworkOrderdata?.table_Data.map((row) =>
-      columns.map((column) => (row[column] !== undefined ? row[column] : ""))
-    );
-
-    pdf.autoTable({
-      startY: 160,
-      head: [columns],
-      body: rows,
-    });
-
-    const generatedPdf = pdf.output("datauristring");
-
-    if (generatedPdf) {
-      setViewPdf((prevViewPdf) => {
-        if (prevViewPdf !== generatedPdf) {
-          return generatedPdf;
-        }
-        return prevViewPdf;
-      });
-    } else {
-      console.error("Error generating PDF");
-    }
-  };
-
-  const handleClick = (id) => {
-    const fetchData = async () => {
-      await axios
-        .get(`${server}/get/purchaseorder/${id}`,{
-          withCredentials: true,
-        })
-        .then((res) => {
-          const data = res.data.purchaseOrderdata;
-          setGetworkOrderdata(data);
-          if (getworkOrderdata) {
-            generatePDF();
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    };
-    fetchData();
-  };
-  useEffect(() => {
-    if (getworkOrderdata) {
-      generatePDF();
-    }
-  }, [getworkOrderdata]);
-
   return (
     <>
       <form onSubmit={handleSubmit(handleFormSubmit)}>
@@ -312,7 +191,7 @@ const PurchaseOrder = () => {
         <div className="p-2"></div>
         <div className="grid grid-cols-5 gap-3 ">
           <div className="col-span-4 bg-[#F9F9FC] mt-4">
-            <div className="flex flex-col w-full p-4  border-2 rounded-md bg-white">
+            <div className="flex flex-col w-full p-4  border-2 rounded-xl bg-white">
               <div className="py-2 text-lg font-semibold">
                 General Information
               </div>
@@ -320,7 +199,7 @@ const PurchaseOrder = () => {
                 <div className="text-[#4D5464] font-semibold py-2">
                   Reference Number :{" "}
                 </div>
-                <div className="border-2 rounded-md ">
+                <div className="border-2 rounded-xl ">
                   <input
                     {...register("reference_number", {
                       required: "Reference Number is required",
@@ -339,7 +218,7 @@ const PurchaseOrder = () => {
               </div>
               <div className="py-2">
                 <div className="text-[#4D5464] font-semibold py-2">To : </div>
-                <div className="border-2 rounded-md ">
+                <div className="border-2 rounded-xl ">
                   <input
                     {...register("to", {
                       required: "To is required",
@@ -358,7 +237,7 @@ const PurchaseOrder = () => {
                 <div className="text-[#4D5464] font-semibold py-2">
                   Subject :{" "}
                 </div>
-                <div className="border-2 rounded-md ">
+                <div className="border-2 rounded-xl ">
                   <input
                     {...register("subject", {
                       required: "Subject is required",
@@ -377,7 +256,7 @@ const PurchaseOrder = () => {
                 <div className="text-[#4D5464] font-semibold py-2">
                   Letter :{" "}
                 </div>
-                <div className="border-2 rounded-md">
+                <div className="border-2 rounded-xl">
                   <input
                     {...register("letter", {
                       required: "Letter is required",
@@ -396,7 +275,7 @@ const PurchaseOrder = () => {
             </div>
             <div className="p-4"></div>
 
-            <div className="flex flex-col w-full p-4  border-2 rounded-md bg-white">
+            <div className="flex flex-col w-full p-4  border-2 rounded-xl bg-white">
               <div className="flex flex-row justify-between">
                 <div className="flex items-center text-lg font-semibold">
                   Orders
@@ -410,7 +289,7 @@ const PurchaseOrder = () => {
                   </button>
                   <button
                     onClick={addColumn}
-                    className="px-2 text-[#5C59E8] font-bold border-2 bg-[#DEDEFA] ml-2  rounded-lg"
+                    className="px-2 text-[#5C59E8] font-bold border-2 bg-[#DEDEFA] ml-2  rounded-md"
                   >
                     <AddIcon />
                   </button>
@@ -443,7 +322,7 @@ const PurchaseOrder = () => {
               <div className=" flex justify-end">
                 <button
                   onClick={removeRow}
-                  className="p-2  text-xs text-[#5C59E8] font-bold border-2 bg-[#DEDEFA] ml-2  rounded-md"
+                  className="p-2  text-xs text-[#5C59E8] font-bold border-2 bg-[#DEDEFA] ml-2  rounded-lg"
                 >
                   Remove Order -
                 </button>
@@ -457,7 +336,7 @@ const PurchaseOrder = () => {
               <div className="p-2"></div>
             </div>
             <div className="p-4"></div>
-            <div className="flex flex-col w-full p-4  border-2 rounded-md bg-white">
+            <div className="flex flex-col w-full p-4  border-2 rounded-xl bg-white">
               <div className="py-2 text-lg font-semibold">
                 Terms and Conditions
               </div>
@@ -509,7 +388,7 @@ const PurchaseOrder = () => {
                     <div className="text-[#4D5464] font-semibold py-2">
                       Delivery :{" "}
                     </div>
-                    <div className="border-2 rounded-md ">
+                    <div className="border-2 rounded-xl ">
                       <input
                         {...register("delivery", {
                           required: "Delivery is required",
@@ -578,22 +457,6 @@ const PurchaseOrder = () => {
         </div>
         <div className="p-6"></div>
       </form>
-
-      <button
-        type="button"
-        onClick={() => {
-          handleClick("655b57911eb55ce157c925f5");
-        }}
-      >
-        View
-      </button>
-      {viewPdf && (
-        <Worker
-          workerUrl={`https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`}
-        >
-          <Viewer fileUrl={viewPdf} />
-        </Worker>
-      )}
     </>
   );
 };

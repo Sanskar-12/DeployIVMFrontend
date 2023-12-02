@@ -1,6 +1,6 @@
 import { createReducer } from "@reduxjs/toolkit";
 
-const intialState = { orders: [] };
+const intialState = { orders: [],order:[] };
 
 export const getAllOrders = createReducer(intialState, {
   getAllOrdersRequest: (state) => {
@@ -150,7 +150,6 @@ export const getAllOrders = createReducer(intialState, {
     state.error = action.payload;
   },
 
-  
   getAllOrderByIDRequest: (state) => {
     state.loading = true;
   },

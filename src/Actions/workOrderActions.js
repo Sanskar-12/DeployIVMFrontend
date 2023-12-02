@@ -73,3 +73,61 @@ export const getWorkOrderDataAction = (id) => async (dispatch) => {
     });
   }
 };
+
+
+export const getAllWorkOrderDataAction = () => async (dispatch) => {
+  try {
+    dispatch({
+      type: "getAllWorkOrdersDataRequest",
+    });
+
+    const config = {
+      withCredentials: true,
+    };
+
+    const { data } = await axios.get(
+      `/api/v1/get/all/workorder`, 
+      config
+    );
+    dispatch({
+      type: "getAllWorkOrdersDataSuccess",
+      payload: data.allworkOrderdata,
+    });
+  } catch (error) {
+    dispatch({
+      type: "getAllWorkOrdersDataFail",
+      payload: error.response.data.message,
+    });
+  }
+};
+
+
+
+
+export const deleteWorkOrderDataAction = (id) => async (dispatch) => {
+  try {
+    dispatch({
+      type: "deleteWorkOrdersDataRequest",
+    });
+
+    const config = {
+      withCredentials: true,
+    };
+
+    const { data } = await axios.delete(
+      `/api/v1/delete/workorder/${id}`, 
+      config
+    );
+    dispatch({
+      type: "deleteWorkOrdersDataSuccess",
+      payload: data.message,
+    });
+  } catch (error) {
+    dispatch({
+      type: "deleteWorkOrdersDataFail",
+      payload: error.response.data.message,
+    });
+  }
+};
+
+

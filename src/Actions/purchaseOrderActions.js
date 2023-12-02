@@ -72,3 +72,60 @@ export const getPurchaseOrderDataAction = (id) => async (dispatch) => {
     });
   }
 };
+
+
+
+export const getAllPurchaseOrderDataAction = () => async (dispatch) => {
+  try {
+    dispatch({
+      type: "getAllPurchaseOrdersDataRequest",
+    });
+
+    const config = {
+      withCredentials: true,
+    };
+
+    const { data } = await axios.get(
+      `/api/v1/get/all/purchaseorder`, 
+      config
+    );
+    dispatch({
+      type: "getAllPurchaseOrdersDataSuccess",
+      payload: data.allpurchaseOrderdata,
+    });
+  } catch (error) {
+    dispatch({
+      type: "getAllPurchaseOrdersDataFail",
+      payload: error.response.data.message,
+    });
+  }
+};
+
+
+
+export const deletePurchaseOrderDataAction = (id) => async (dispatch) => {
+  try {
+    dispatch({
+      type: "deletePurchaseOrdersDataRequest",
+    });
+
+    const config = {
+      withCredentials: true,
+    };
+
+    const { data } = await axios.delete(
+      `/api/v1/delete/purchaseorder/${id}`, 
+      config
+    );
+    dispatch({
+      type: "deletePurchaseOrdersDataSuccess",
+      payload: data.message,
+    });
+  } catch (error) {
+    dispatch({
+      type: "deletePurchaseOrdersDataFail",
+      payload: error.response.data.message,
+    });
+  }
+};
+

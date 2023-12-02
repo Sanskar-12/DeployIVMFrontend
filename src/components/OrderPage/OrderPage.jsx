@@ -2,7 +2,9 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import TuneIcon from "@mui/icons-material/Tune";
 import EditIcon from "@mui/icons-material/Edit";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import html2pdf from "html2pdf.js";
 import { useDispatch, useSelector } from "react-redux";
+import PrintIcon from "@mui/icons-material/Print";
 import {
   approveOrdersAction,
   approveOrdersforApproverAction,
@@ -33,6 +35,7 @@ import {
 // import Pagination from "react-js-pagination";
 
 const Order = () => {
+  const [selectedOption, setSelectedOption] = useState("");
   const [open, setOpen] = useState(true);
   const [contentopen, setcontentOpen] = useState(false);
   const [remark, setRemark] = useState("");
@@ -43,6 +46,211 @@ const Order = () => {
   const { loading, orders } = useSelector((state) => state.orders);
   const { user } = useSelector((state) => state.user);
   const { onClose, isOpen, onOpen } = useDisclosure();
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
+
+  const downloadCsv = async () => {
+    const headers = [
+      "Order Id",
+      "Date",
+      "Requisition Subject",
+      "Department",
+      "Room No/Location",
+      "Expense Type",
+      "Status",
+    ];
+    // console.log(headers);
+    let csvContent = headers.join(",") + "\n";
+
+    selectedRows.forEach((header) => {
+      const values = [
+        header._id,
+        header.createdBy,
+        header.requisition_name,
+        header.department,
+        header.lab,
+        header.itemtype,
+        header.remark,
+      ];
+
+      console.log(values);
+      csvContent += values.join(",") + "\n";
+    });
+    // console.log(selectedRows);
+    // await setCsvOutput(csvContent);
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "data.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    csvContent = [];
+  };
+
+  const handleCheckboxChange = (id, rowData) => {
+    setSelectedRows((prevSelectedRows) => {
+      if (prevSelectedRows.some((row) => row.id === id)) {
+        // If the ID is already in the selectedRows, remove it
+        return prevSelectedRows.filter((row) => row.id !== id);
+      } else {
+        // If the ID is not in selectedRows, add the entire row data
+        return [...prevSelectedRows, rowData];
+      }
+    });
+  };
+
+  const handleClick = () => {
+    console.log(selectedRows);
+
+    if (user?.user_level === "Approval") {
+      const tableRows = selectedRows.map(
+        (item) =>
+          `<tr key=${item._id}>
+          <td>${item._id}</td>
+          <td>${item.createdBy}</td>
+          <td>${item.requisition_name}</td>
+          <td>${item.department}</td>
+          <td>${item.lab}</td>
+          <td>${item.itemtype}</td>
+          <td>${item.orderStatus}</td>
+          <td>${item.verifierName}</td>
+          <td>${item.remark}</td>
+        </tr>`
+      );
+
+      const tableContent = `
+        <html>
+          <head>
+          <img src="https://hips.hearstapps.com/hmg-prod/images/dwayne-the-rock-johnson-gettyimages-1061959920.jpg"/>
+      <p>Harsh</p>
+            <title>Print Table</title>
+            <style>
+              table {
+                border-collapse: collapse;
+                width: 100%;
+              }
+              th, td {
+                border: 1px solid #dddddd;
+                text-align: left;
+                padding: 8px;
+              }
+              th {
+                background-color: #f2f2f2;
+              }
+            </style>
+          </head>
+          <body>
+            <h1>JSON Data in Table Format</h1>
+            <table>
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Date</th>
+                  <th>Requisition Name</th>
+                  <th>Department</th>
+                  <th>Room no/Location</th>
+                  <th>Expense Type</th>
+                  <th>Status</th>
+                  <th>Verified By</th>
+                  <th>Verifier Remark</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${tableRows.join("")}
+              </tbody>
+            </table>
+          </body>
+        </html>
+      `;
+
+      const printWindow = window.open("", "_blank", "width=800,height=800"); // Increase width and height
+      if (printWindow) {
+        printWindow.document.write(tableContent);
+        printWindow.document.close();
+        printWindow.print();
+      } else {
+        alert("Please allow pop-ups for this website");
+      }
+    } else {
+      const tableRows = selectedRows.map(
+        (item) =>
+          `<tr key=${item._id}>
+          <td>${item._id}</td>
+          <td>${item.createdBy}</td>
+          <td>${item.requisition_name}</td>
+          <td>${item.department}</td>
+          <td>${item.lab}</td>
+          <td>${item.itemtype}</td>
+          <td>${item.orderStatus}</td>
+        </tr>`
+      );
+
+      const tableContent = `
+        <html>
+          <head>
+          <img src="https://hips.hearstapps.com/hmg-prod/images/dwayne-the-rock-johnson-gettyimages-1061959920.jpg"/>
+      <p>Harsh</p>
+            <title>Print Table</title>
+            <style>
+              table {
+                border-collapse: collapse;
+                width: 100%;
+              }
+              th, td {
+                border: 1px solid #dddddd;
+                text-align: left;
+                padding: 8px;
+              }
+              th {
+                background-color: #f2f2f2;
+              }
+            </style>
+          </head>
+          <body>
+            <h1>JSON Data in Table Format</h1>
+            <table>
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Date</th>
+                  <th>Requisition Name</th>
+                  <th>Department</th>
+                  <th>Room no/Location</th>
+                  <th>Expense Type</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${tableRows.join("")}
+              </tbody>
+            </table>
+          </body>
+        </html>
+      `;
+
+      const printWindow = window.open("", "_blank", "width=800,height=800"); // Increase width and height
+      if (printWindow) {
+        printWindow.document.write(tableContent);
+        printWindow.document.close();
+        printWindow.print();
+      } else {
+        alert("Please allow pop-ups for this website");
+      }
+    }
+  };
+  const handleSelectAll = () => {
+    setSelectAll(!selectAll);
+    setSelectedRows((prevSelectedRows) => {
+      if (!selectAll) {
+        return orders.orders;
+      } else {
+        return [];
+      }
+    });
+  };
 
   const filters = [
     {
@@ -107,13 +315,13 @@ const Order = () => {
     dispatch(getAllOrdersAction());
   };
 
-  const handleApproveforApprover = async (orderId,approverremark) => {
+  const handleApproveforApprover = async (orderId, approverremark) => {
     await dispatch(approveOrdersforApproverAction(orderId, approverremark));
     setapproverRemark("");
     dispatch(getAllOrdersForApprover());
   };
 
-  const handleDeclineforApprover = async (orderId,approverremark) => {
+  const handleDeclineforApprover = async (orderId, approverremark) => {
     await dispatch(declineOrdersforApproverAction(orderId, approverremark));
     setapproverRemark("");
     dispatch(getAllOrdersForApprover());
@@ -136,6 +344,143 @@ const Order = () => {
   const toggleFilter = () => {
     setOpen(!open);
   };
+  const handleSelect = (selectedValue) => {
+    setSelectedOption("Export As");
+    if (selectedValue === "csv") {
+      downloadCsv();
+    } else if (selectedValue === "pdf") {
+      downloadPdf();
+    }
+  };
+
+  const downloadPdf = () => {
+    let tableContent = "";
+    if (user?.user_level === "Approval") {
+      const tableRows = selectedRows.map(
+        (item, index) =>
+          `<tr key=${item._id}>
+          <td>${index + 1}</td>
+          <td>${moment(item?.createdBy).format("DD/MM/YYYY")}</td>
+          <td>${item.requisition_name}</td>
+          <td>${item.department}</td>
+          <td>${item.lab}</td>
+          <td>${item.itemtype}</td>
+          <td>${item.orderStatus}</td>
+          <td>${item.verifierName}</td>
+          <td>${item.remark}</td>
+        </tr>`
+      );
+
+      tableContent = `
+        <html>
+          <head>
+            <title>Print Table</title>
+            <style>
+              table {
+                border-collapse: collapse;
+                width: 100%;
+              }
+              th, td {
+                border: 1px solid #dddddd;
+                text-align: left;
+                padding: 8px;
+              }
+              th {
+                background-color: #f2f2f2;
+              }
+            </style>
+          </head>
+          <body>
+            <h1>Orders</h1>
+            <br/>
+            <table>
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Date</th>
+                  <th>Requisition Name</th>
+                  <th>Department</th>
+                  <th>Room no/Location</th>
+                  <th>Expense Type</th>
+                  <th>Status</th>
+                  <th>Verified By</th>
+                  <th>Verifier Remark</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${tableRows.join("")}
+              </tbody>
+            </table>
+          </body>
+        </html>
+      `;
+    } else {
+      const tableRows = selectedRows.map(
+        (item, index) =>
+          `<tr key=${item._id}>
+          <td>${index + 1}</td>
+          <td>${moment(item?.createdBy).format("DD/MM/YYYY")}</td>
+          <td>${item.requisition_name}</td>
+          <td>${item.department}</td>
+          <td>${item.lab}</td>
+          <td>${item.itemtype}</td>
+          <td>${item.orderStatus}</td>
+          </tr>`
+      );
+
+      tableContent = `
+                <html>
+                  <head>
+                    <title>Print Table</title>
+                    <style>
+                      table {
+                        border-collapse: collapse;
+                        width: 100%;
+                      }
+                      th, td {
+                        border: 1px solid #dddddd;
+                        text-align: left;
+                        padding: 8px;
+                      }
+                      th {
+                        background-color: #f2f2f2;
+                      }
+                    </style>
+                  </head>
+                  <body>
+                    <h1>Orders</h1>
+                    <br/>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Order ID</th>
+                          <th>Date</th>
+                          <th>Requisition Name</th>
+                          <th>Department</th>
+                          <th>Room no/Location</th>
+                          <th>Expense Type</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${tableRows.join("")}
+                      </tbody>
+                    </table>
+                  </body>
+                </html>
+              `;
+    }
+    const pdfOptions = {
+      margin: 1,
+      filename: "tableData.pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 3 },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    };
+
+    html2pdf().from(tableContent).set(pdfOptions).save();
+  };
+
   return (
     <>
       {loading ? (
@@ -165,7 +510,22 @@ const Order = () => {
             </div>
             <div className="mt-4 flex justify-end">
               <div className="mt-3 md:mt-0 md:flex">
-                
+                <button
+                  className="p-2 mx-2 px-3 pr-26  rounded-lg bg-[#5C59E8] text-md text-white mr-4 "
+                  onClick={handleClick}
+                >
+                  <PrintIcon />
+                </button>
+
+                <select
+                  className="p-2 mx-2 px-6 pr-26 rounded-lg bg-[#5C59E8] text-md text-white mr-4"
+                  onChange={(e) => handleSelect(e.target.value)}
+                  value={selectedOption}
+                >
+                  <option value="Export AS">Export As</option>
+                  <option value="csv">Save as CSV</option>
+                  <option value="pdf">Save as Pdf</option>
+                </select>
 
                 <div className="p-0">
                   {!open && (
@@ -247,6 +607,13 @@ const Order = () => {
             <table className="w-full shadow-md  border-2 rounded-2xl ">
               <thead className="w-full">
                 <tr className="border border-solid ">
+                  <th className="text-md px-6 py-3">
+                    <input
+                      type="checkbox"
+                      checked={selectAll}
+                      onChange={() => handleSelectAll()}
+                    />
+                  </th>
                   <th className="text-md px-6 py-3">Order Id</th>
                   <th className="text-md px-6 py-3">Date</th>
 
@@ -277,6 +644,17 @@ const Order = () => {
                 {orders?.orders?.map((order) => (
                   <tr key={order?._id}>
                     <>
+                      <td className="text-md border-b text-center px-6  py-3">
+                        <input
+                          type="checkbox"
+                          checked={selectedRows.some(
+                            (selectedRow) => selectedRow._id === order?._id
+                          )}
+                          onChange={() =>
+                            handleCheckboxChange(order?._id, order)
+                          }
+                        />
+                      </td>
                       <th className="text-md border-b text-center text-[#5C59E8] px-6 py-3">
                         <Link to={`/order-details-page/${order._id}`}>
                           {order?._id.substring(0, 6)}
@@ -338,7 +716,10 @@ const Order = () => {
                             <div className="flex justify-between  ">
                               <button
                                 onClick={() =>
-                                  handleApproveforApprover(order?._id,approverremark)
+                                  handleApproveforApprover(
+                                    order?._id,
+                                    approverremark
+                                  )
                                 }
                                 className="rounded-full p-2 border-slate-900 "
                                 disabled={approverremark.length === 0}
@@ -348,7 +729,10 @@ const Order = () => {
                               </button>
                               <button
                                 onClick={() =>
-                                  handleDeclineforApprover(order?._id,approverremark)
+                                  handleDeclineforApprover(
+                                    order?._id,
+                                    approverremark
+                                  )
                                 }
                                 className="rounded-full p-2  bg-red"
                                 disabled={approverremark.length === 0}

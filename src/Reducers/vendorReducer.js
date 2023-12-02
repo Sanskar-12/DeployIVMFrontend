@@ -22,7 +22,7 @@ const intialState={
       },
       getVendorDataSuccess: (state, action) => {
         state.loading = false;
-        state.getworkOrderdata = action.payload;
+        state.vendors = action.payload;
       },
       getVendorDataFail: (state, action) => {
         state.loading = false;
@@ -37,6 +37,19 @@ const intialState={
         state.vendor = action.payload;
       },
       getVendorDataByIdFail: (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      },
+
+      
+      deleteVendorByIdRequest: (state) => {
+        state.loading = true;
+      },
+      deleteVendorByIdSuccess: (state, action) => {
+        state.loading = false;
+        state.message = action.payload;
+      },
+      deleteVendorByIdFail: (state, action) => {
         state.loading = false;
         state.error = action.payload;
       },

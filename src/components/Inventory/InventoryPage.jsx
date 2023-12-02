@@ -2,16 +2,23 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import TuneIcon from "@mui/icons-material/Tune";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import html2pdf from "html2pdf.js";
 import { useEffect, useState } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteInventoryAction, getAllInventoryAction } from "../../Actions/inventoryActions";
+import PrintIcon from "@mui/icons-material/Print";
+import {
+  deleteInventoryAction,
+  getAllInventoryAction,
+} from "../../Actions/inventoryActions";
 import Loader from "../Loader/Loader";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import Pagination from "react-js-pagination";
+// import Pagination from "react-js-pagination";
 import "./InventoryPage.css";
+import { Link } from "react-router-dom";
 
 const InventoryPage = () => {
+  const [selectedOption, setSelectedOption] = useState(""); //for exporting
   const [open, setOpen] = useState(true);
   const [contentopen, setcontentOpen] = useState(false);
   //   const [filer,setFilter]= useState({});
@@ -19,24 +26,221 @@ const InventoryPage = () => {
 
   const dispatch = useDispatch();
 
-  const { loading, products, productCount, resultPerPage } = useSelector(
-    (state) => state.inventory
-  );
-  const [currentPage, setCurrentPage] = useState(1);
+  const { loading, products } = useSelector((state) => state.inventory);
+  // const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    dispatch(getAllInventoryAction(search, currentPage));
-  }, [dispatch, currentPage, search]);
+    dispatch(getAllInventoryAction());
+  }, [dispatch]);
 
-  const setCurrentPageNo = (e) => {
-    setCurrentPage(e);
+  // const setCurrentPageNo = (e) => {
+  //   setCurrentPage(e);
+  // };
+  const handleDelete = async (productId) => {
+    await dispatch(deleteInventoryAction(productId));
+    dispatch(getAllInventoryAction());
   };
-const handleDelete= async(productId)=>{
-await dispatch(deleteInventoryAction(productId))
-dispatch(getAllInventoryAction(search, currentPage));
-}
   const toggleFilter = () => {
     setOpen(!open);
+  };
+
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
+
+  const handleCheckboxChange = (id, rowData) => {
+    setSelectedRows((prevSelectedRows) => {
+      if (prevSelectedRows.some((row) => row.id === id)) {
+        // If the ID is already in the selectedRows, remove it
+        return prevSelectedRows.filter((row) => row.id !== id);
+      } else {
+        // If the ID is not in selectedRows, add the entire row data
+        return [...prevSelectedRows, rowData];
+      }
+    });
+  };
+
+  const downloadCsv = async () => {
+    const headers = [
+      "Id",
+      "Requisition Subject",
+      "Department",
+      "Room No/Location",
+      "Expense Type",
+    ];
+    // console.log(headers);
+    let csvContent = headers.join(",") + "\n";
+
+    selectedRows.forEach((header) => {
+      const values = [
+        header._id,
+        header.requisition_name,
+        header.department,
+        header.lab,
+        header.itemtype,
+      ];
+
+      console.log(values);
+      csvContent += values.join(",") + "\n";
+    });
+    // console.log(selectedRows);
+    // await setCsvOutput(csvContent);
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "data.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    csvContent = [];
+  };
+
+  const handleClick = () => {
+    console.log(selectedRows);
+
+    const tableRows = selectedRows.map(
+      (item) =>
+        `<tr key=${item._id}>
+        <td>${item._id}</td>
+        <td>${item.requisition_name}</td>
+        <td>${item.department}</td>
+        <td>${item.lab}</td>
+        <td>${item.itemtype}</td>
+      </tr>`
+    );
+
+    const tableContent = `
+      <html>
+        <head>
+        <img src="https://hips.hearstapps.com/hmg-prod/images/dwayne-the-rock-johnson-gettyimages-1061959920.jpg"/>
+    <p>Harsh</p>
+          <title>Print Table</title>
+          <style>
+            table {
+              border-collapse: collapse;
+              width: 100%;
+            }
+            th, td {
+              border: 1px solid #dddddd;
+              text-align: left;
+              padding: 8px;
+            }
+            th {
+              background-color: #f2f2f2;
+            }
+          </style>
+        </head>
+        <body>
+          <h1>JSON Data in Table Format</h1>
+          <table>
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Requisition Name</th>
+                <th>Department</th>
+                <th>Room no/Location</th>
+                <th>Expense Type</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRows.join("")}
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `;
+
+    const printWindow = window.open("", "_blank", "width=800,height=800"); // Increase width and height
+    if (printWindow) {
+      printWindow.document.write(tableContent);
+      printWindow.document.close();
+      printWindow.print();
+    } else {
+      alert("Please allow pop-ups for this website");
+    }
+  };
+  const handleSelectAll = () => {
+    setSelectAll(!selectAll);
+    setSelectedRows((prevSelectedRows) => {
+      if (!selectAll) {
+        return products;
+      } else {
+        return [];
+      }
+    });
+  };
+
+  const handleSelect = (selectedValue) => {
+    setSelectedOption("Export As");
+    if (selectedValue === "csv") {
+      downloadCsv();
+    } else if (selectedValue === "pdf") {
+      downloadPdf();
+    }
+  };
+
+  const downloadPdf = () => {
+    const tableRows = selectedRows.map(
+      (item, index) =>
+        `<tr key=${item._id}>
+        <td>${index + 1}</td>
+        <td>${item.requisition_name}</td>
+        <td>${item.department}</td>
+        <td>${item.lab}</td>
+        <td>${item.itemtype}</td>
+      </tr>`
+    );
+
+    const tableContent = `
+      <html>
+        <head>
+          <title>Print Table</title>
+          <style>
+            table {
+              border-collapse: collapse;
+              width: 100%;
+            }
+            th, td {
+              border: 1px solid #dddddd;
+              text-align: left;
+              padding: 8px;
+            }
+            th {
+              background-color: #f2f2f2;
+            }
+          </style>
+        </head>
+        <body>
+          <h1>Inventory List</h1>
+          <br/>
+          <table>
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Requisition Name</th>
+                <th>Department</th>
+                <th>Room no/Location</th>
+                <th>Expense Type</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRows.join("")}
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `;
+
+    const pdfOptions = {
+      margin: 1,
+      filename: "tableData.pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 3 },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    };
+
+    html2pdf().from(tableContent).set(pdfOptions).save();
   };
 
   return (
@@ -55,15 +259,28 @@ dispatch(getAllInventoryAction(search, currentPage));
             <ArrowForwardIosIcon />{" "}
           </p>
           <p className="flex items-center text-base text-[#667085]">
-            Inevntory List
+            Inventory List
           </p>
         </div>
       </div>
 
       <div className="mt-4 flex justify-end ">
         <div className="mt-3 md:mt-0 md:flex ">
-         
-
+          <button
+            className="p-2 mx-2 px-3 pr-26  rounded-lg bg-[#5C59E8] text-md text-white mr-4 "
+            onClick={handleClick}
+          >
+            <PrintIcon />
+          </button>
+          <select
+            className="p-2 mx-2 px-6 pr-26 rounded-lg bg-[#5C59E8] text-md text-white mr-4"
+            onChange={(e) => handleSelect(e.target.value)}
+            value={selectedOption}
+          >
+            <option value="Export AS">Export As </option>
+            <option value="csv">Save as CSV</option>
+            <option value="pdf">Save as Pdf</option>
+          </select>
           <div className="p-0">
             {!open && (
               <>
@@ -136,7 +353,7 @@ dispatch(getAllInventoryAction(search, currentPage));
         </div>
       </div>
 
-      <div className="flex  flex-row grow-0 bg-white border-slate-50 rounded-md mt-4 w-full">
+      <div className="flex flex-row grow-0   rounded-md mt-4">
         <div className="flex ml-4">
           <div className="mt-2 px-2 ">
             <SearchIcon />
@@ -161,31 +378,51 @@ dispatch(getAllInventoryAction(search, currentPage));
               <table className="w-full  shadow-md border-2 rounded-2xl ">
                 <thead className="w-full">
                   <tr className=" border border-solid ">
-                    <th className="text-md px-6 py-3">Products</th>
+                    <th className="text-md px-6 py-3">
+                      <input
+                        type="checkbox"
+                        checked={selectAll}
+                        onChange={() => handleSelectAll()}
+                      />
+                    </th>
                     <th className="text-md px-6 py-3 ">Id</th>
-                    <th className="text-md px-6 py-3">Category</th>
-                    <th className="text-md px-6 py-3">Stock</th>
-                    <th className="text-md px-6 py-3">TimeLine</th>
+                    <th className="text-md px-6 py-3">Requisiton Subject</th>
+                    <th className="text-md px-6 py-3">Department</th>
+                    <th className="text-md px-6 py-3">Room No/Location</th>
+                    <th className="text-md px-6 py-3">Expense Type</th>
                     <th className="text-md px-6 py-3">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {products?.map((products) => (
                     <tr key={products?._id}>
-                      <th className="text-md text-center border-b px-6 py-3 bg-white">
-                        {products?.name}
+                      <td className="text-md border-b text-center px-6  py-3">
+                        <input
+                          type="checkbox"
+                          checked={selectedRows.some(
+                            (selectedRow) => selectedRow._id === products?._id
+                          )}
+                          onChange={() =>
+                            handleCheckboxChange(products?._id, products)
+                          }
+                        />
+                      </td>
+                      <th className="text-md text-center px-6 text-[#5C59E8]  bg-white font-medium py-3 border-b">
+                        <Link to={`/order-details-page/${products?._id}`}>
+                          {products?._id && products._id.substring(0, 6)}
+                        </Link>
                       </th>
-                      <td className="text-md text-center px-6 text-[#5C59E8]  bg-white font-medium py-3 border-b">
-                        {products?._id && products._id.substring(0, 6)}
+                      <td className="text-md border-b text-center  bg-white px-6 py-3">
+                        {products?.requisition_name}
                       </td>
                       <td className="text-md border-b text-center  bg-white px-6 py-3">
-                        {products?.categorie?.name}
+                        {products?.department}
                       </td>
                       <td className="text-md  border-b text-center  bg-white px-6 py-3">
-                        {products?.stock}
+                        {products?.lab}
                       </td>
                       <td className="text-md text-center  bg-white border-b px-6 py-3">
-                        {products?.createdAt?.split("T")[0]}
+                        {products?.itemtype}
                       </td>
                       <td className="text-md px-6 py-3  bg-white border-b">
                         <div className="flex justify-around  ">
@@ -196,7 +433,7 @@ dispatch(getAllInventoryAction(search, currentPage));
                             <EditIcon />
                           </button>
                           <button
-                             onClick={() => handleDelete(products?._id)}
+                            onClick={() => handleDelete(products?._id)}
                             className="rounded-full p-2  bg-red"
                           >
                             <DeleteIcon />
@@ -207,7 +444,7 @@ dispatch(getAllInventoryAction(search, currentPage));
                   ))}
                 </tbody>
               </table>
-              {resultPerPage < productCount && (
+              {/* {resultPerPage < productCount && (
                 <div className="paginationBox">
                   <Pagination
                     activePage={currentPage}
@@ -224,7 +461,7 @@ dispatch(getAllInventoryAction(search, currentPage));
                     activeLinkClass="pageLinkActive"
                   />
                 </div>
-              )}
+              )} */}
             </div>
           </>
         )}
@@ -264,103 +501,5 @@ const filters = [
     ],
   },
 ];
-
-// export function Table() {
-//   // const [editableOrderId, setEditableOrderId] = useState(-1);
-
-//   const dispatch = useDispatch();
-//   const { loading, products, productCount, resultPerPage } = useSelector(
-//     (state) => state.inventory
-//   );
-//   const [currentPage, setCurrentPage] = useState(1);
-
-//   useEffect(() => {
-//     dispatch(getAllInventoryAction(currentPage));
-//   }, [dispatch, currentPage]);
-
-//   const setCurrentPageNo = (e) => {
-//     setCurrentPage(e);
-//   };
-
-//   return (
-//     <>
-//       {loading ? (
-//         <Loader />
-//       ) : (
-//         <>
-//           <div className="block bg-transparent m-4 p-4 w-full overflow-x-auto min-h-full">
-//             <table className="w-full  shadow-md border-2 rounded-2xl ">
-//               <thead className="w-full">
-//                 <tr className=" border border-solid ">
-//                   <th className="text-md px-6 py-3">Products</th>
-//                   <th className="text-md px-6 py-3 ">Id</th>
-//                   <th className="text-md px-6 py-3">Category</th>
-//                   <th className="text-md px-6 py-3">Stock</th>
-//                   <th className="text-md px-6 py-3">TimeLine</th>
-//                   <th className="text-md px-6 py-3">Actions</th>
-//                 </tr>
-//               </thead>
-//               <tbody>
-//                 {products?.map((products) => (
-//                   <tr key={products?._id}>
-//                     <th className="text-md text-center border-b px-6 py-3 bg-white">
-//                       {products?.name}
-//                     </th>
-//                     <td className="text-md text-center px-6 text-[#5C59E8]  bg-white font-medium py-3 border-b">
-//                       {products?._id && products._id.substring(0, 6)}
-//                     </td>
-//                     <td className="text-md border-b text-center  bg-white px-6 py-3">
-//                       {products?.categorie?.name}
-//                     </td>
-//                     <td className="text-md  border-b text-center  bg-white px-6 py-3">
-//                       {products?.stock}
-//                     </td>
-//                     <td className="text-md text-center  bg-white border-b px-6 py-3">
-//                       {products?.createdAt?.split("T")[0]}
-//                     </td>
-//                     <td className="text-md px-6 py-3  bg-white border-b">
-//                       <div className="flex justify-around  ">
-//                         <button
-//                           // onClick={() => handleEdit(order)}
-//                           className="rounded-full p-2 border-slate-900 "
-//                         >
-//                           <EditIcon />
-//                         </button>
-//                         <button
-//                           // onClick={() => handleDelete(order)}
-//                           className="rounded-full p-2  bg-red"
-//                         >
-//                           <DeleteIcon />
-//                         </button>
-//                       </div>
-//                     </td>
-//                   </tr>
-//                 ))}
-//               </tbody>
-//             </table>
-//             {resultPerPage < productCount && (
-//               <div className="paginationBox">
-//                 <Pagination
-//                   activePage={currentPage}
-//                   itemsCountPerPage={resultPerPage}
-//                   totalItemsCount={productCount}
-//                   onChange={setCurrentPageNo}
-//                   nextPageText="Next"
-//                   prevPageText="Prev"
-//                   firstPageText="First"
-//                   lastPageText="Last"
-//                   itemClass="page-item"
-//                   linkClass="page-link"
-//                   activeClass="pageItemActive"
-//                   activeLinkClass="pageLinkActive"
-//                 />
-//               </div>
-//             )}
-//           </div>
-//         </>
-//       )}
-//     </>
-//   );
-// }
 
 export default InventoryPage;

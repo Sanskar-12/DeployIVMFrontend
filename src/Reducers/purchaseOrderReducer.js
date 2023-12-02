@@ -29,4 +29,30 @@ export const createPuchaseOrder = createReducer(intialState, {
     state.loading = false;
     state.error = action.payload;
   },
+
+  
+  getAllPurchaseOrdersDataRequest: (state) => {
+    state.loading = true;
+  },
+  getAllPurchaseOrdersDataSuccess: (state, action) => {
+    state.loading = false;
+    state.getpurchaseOrderdata = action.payload;
+  },
+  getAllPurchaseOrdersDataFail: (state, action) => {
+    state.loading = false;
+    state.error = action.payload;
+  },
+
+  
+  deletePurchaseOrdersDataRequest: (state) => {
+    state.loading = true;
+  },
+  deletePurchaseOrdersDataSuccess: (state, action) => {
+    state.loading = false;
+    state.message = action.payload;
+  },
+  deletePurchaseOrdersDataFail: (state, action) => {
+    state.loading = false;
+    state.error = action.payload;
+  },
 });

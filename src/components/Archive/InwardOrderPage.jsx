@@ -125,6 +125,14 @@ const InwardOrderPage = () => {
               </div>
               <div className="mt-4 md:flex justify-center md:justify-center">
                 <div className="mt-3 md:mt-0 md:flex">
+               
+                <select     
+                    className="p-2 mx-2 px-6 pr-26  rounded-lg bg-[#5C59E8] text-md text-white mr-4 "
+                  >
+                    <option>Export</option>
+                    <option>Save as CSV</option>
+                    <option>Save as Pdf</option>
+              </select>
                   <button
                     onClick={toggleFilter}
                     href="#"

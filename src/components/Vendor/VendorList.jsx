@@ -1,33 +1,34 @@
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import TuneIcon from "@mui/icons-material/Tune";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import html2pdf from "html2pdf.js";
+import TuneIcon from "@mui/icons-material/Tune";
 import PrintIcon from "@mui/icons-material/Print";
+import html2pdf from "html2pdf.js";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import MyModal from "./MyModal";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  changeStatusActions,
-  getAllInwardActions,
-} from "../../Actions/inwardActions";
 import Loader from "../Loader/Loader";
+import {
+  deleteVendorByIDAction,
+  getVendorDataAction,
+} from "../../Actions/vendorActions";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 
-const Inward = () => {
-  const [open, setOpen] = useState(true);
-  // const [open1, setOpen1] = useState(true);
-  // const [close, setClose] = useState(false);
-  const [contentopen, setcontentOpen] = useState(false);
-  const [showMyModal, setShowMyModal] = useState(false);
-  const [selectedOption, setSelectedOption] = useState("");
-  const handleOnClose = () => setShowMyModal(false);
-
+const VendorList = () => {
   const dispatch = useDispatch();
-  const { inward, loading } = useSelector((state) => state.inward);
+  const { vendors, loading } = useSelector((state) => state.vendors);
+  const [open, setOpen] = useState(true);
+  const [contentopen, setcontentOpen] = useState(false);
+  const [selectedOption, setSelectedOption] = useState("");
 
   useEffect(() => {
-    dispatch(getAllInwardActions());
+    dispatch(getVendorDataAction());
   }, [dispatch]);
+
+  const handleDelete = async (id) => {
+    await dispatch(deleteVendorByIDAction(id));
+    dispatch(getVendorDataAction());
+  };
 
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
@@ -43,34 +44,29 @@ const Inward = () => {
       }
     });
   };
+
   const downloadCsv = async () => {
     const headers = [
-      "Order Id",
-      "Requisitioner Name",
-      "Department",
-      "Lab",
-      "Item Type",
-      "Approve By",
-      "Approver Remark",
-      "Status",
+      "Sr No.",
+      "Name Of The Company",
+      "Contact Person",
+      "Mobile No",
     ];
     // console.log(headers);
     let csvContent = headers.join(",") + "\n";
 
+    let x = 1;
     selectedRows.forEach((header) => {
       const values = [
-        header._id,
-        header.requisition_name,
-        header.department,
-        header.lab,
-        header.itemtype,
-        header.verifierName,
-        header.approverremark,
-        header.orderStatus,
+        `${x}`,
+        header.companyName,
+        header.contactPerson,
+        header.mobileNumber,
       ];
 
       console.log(values);
       csvContent += values.join(",") + "\n";
+      x = x + 1;
     });
     // console.log(selectedRows);
     // await setCsvOutput(csvContent);
@@ -85,20 +81,17 @@ const Inward = () => {
     document.body.removeChild(link);
     csvContent = [];
   };
+
   const handleClick = () => {
     console.log(selectedRows);
 
     const tableRows = selectedRows.map(
-      (item) =>
+      (item, index) =>
         `<tr key=${item._id}>
-        <td>${item._id}</td>
-        <td>${item.requisition_name}</td>
-        <td>${item.department}</td>
-        <td>${item.lab}</td>
-        <td>${item.itemtype}</td>
-        <td>${item.verifierName}</td>
-        <td>${item.approverremark}</td>
-        <td>${item.orderStatus}</td>
+        <td>${index + 1}</td>
+        <td>${item.companyName}</td>
+        <td>${item.contactPerson}</td>
+        <td>${item.mobileNumber}</td>
       </tr>`
     );
 
@@ -128,14 +121,10 @@ const Inward = () => {
           <table>
             <thead>
               <tr>
-                <th>Order ID</th>
-                <th>Requisition Name</th>
-                <th>Department</th>
-                <th>Room no/Location</th>
-                <th>Expense Type</th>
-                <th>Approved By</th>
-                <th>Approver Remark</th>
-                <th>Order Status</th>
+                <th>SR.No</th>
+                <th>Name of the Company</th>
+                <th>Contact Person Name</th>
+                <th>Mobile No</th>
               </tr>
             </thead>
             <tbody>
@@ -159,7 +148,7 @@ const Inward = () => {
     setSelectAll(!selectAll);
     setSelectedRows((prevSelectedRows) => {
       if (!selectAll) {
-        return inward;
+        return vendors;
       } else {
         return [];
       }
@@ -201,28 +190,6 @@ const Inward = () => {
   const toggleFilter = () => {
     setOpen(!open);
   };
-  // const toggleDate = () => {
-  //   setOpen1(!open1);
-
-  //   if (open1) {
-  //     setClose(true);
-  //   }
-  // };
-
-  const handlemodal = () => {
-    if (showMyModal) {
-      setShowMyModal(false);
-    } else {
-      setShowMyModal(true);
-    }
-  };
-
-  const handleChange = async (event, orderId) => {
-    event.preventDefault();
-
-    await dispatch(changeStatusActions(orderId, event.target.value));
-    dispatch(getAllInwardActions());
-  };
 
   const handleSelect = (selectedValue) => {
     setSelectedOption("Export As");
@@ -235,16 +202,12 @@ const Inward = () => {
 
   const downloadPdf = () => {
     const tableRows = selectedRows.map(
-      (item) =>
+      (item, index) =>
         `<tr key=${item._id}>
-        <td>${item?._id.substring(0, 6)}</td>
-        <td>${item.requisition_name}</td>
-        <td>${item.department}</td>
-        <td>${item.lab}</td>
-        <td>${item.itemtype}</td>
-        <td>${item.verifierName}</td>
-        <td>${item.approverremark}</td>
-        <td>${item.orderStatus}</td>
+        <td>${index + 1}</td>
+        <td>${item.companyName}</td>
+        <td>${item.contactPerson}</td>
+        <td>${item.mobileNumber}</td>
       </tr>`
     );
 
@@ -268,19 +231,15 @@ const Inward = () => {
           </style>
         </head>
         <body>
-          <h1>Inward</h1>
+          <h1>Vendor List</h1>
           <br/>
           <table>
             <thead>
               <tr>
-                <th>Order ID</th>
-                <th>Requisition Name</th>
-                <th>Department</th>
-                <th>Room no/Location</th>
-                <th>Expense Type</th>
-                <th>Approved By</th>
-                <th>Approver Remark</th>
-                <th>Order Status</th>
+                <th>SR.No</th>
+                <th>Name of the Company</th>
+                <th>Contact Person Name</th>
+                <th>Mobile No</th>
               </tr>
             </thead>
             <tbody>
@@ -294,7 +253,7 @@ const Inward = () => {
       margin: 4,
       filename: "tableData.pdf",
       image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 3 },
+      html2canvas: { scale: 2 },
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
     };
 
@@ -312,7 +271,7 @@ const Inward = () => {
               {" "}
               {/* top bar inward */}
               <div>
-                <div className="text-[24px]">Inward</div>
+                <div className="text-[24px]">Vendor List</div>
                 <div className="flex">
                   <Link
                     to="/home"
@@ -325,7 +284,14 @@ const Inward = () => {
                     <ArrowForwardIosIcon />{" "}
                   </p>
                   <p className="flex items-center text-base text-[#667085]">
-                    Inward
+                    Vendor
+                  </p>
+                  <p className="font-medium text-2xl text-[#A3A9B6] mr-3">
+                    {" "}
+                    <ArrowForwardIosIcon />{" "}
+                  </p>
+                  <p className="flex items-center text-base text-[#667085]">
+                    Vendor List
                   </p>
                 </div>
               </div>
@@ -412,18 +378,9 @@ const Inward = () => {
                       </div>
                     )}
                   </div>
-
-                  <button
-                    onClick={handlemodal}
-                    href="#"
-                    className="md:mr-2 md:w-40  w-2/5  mr-5 px-2 py-2 rounded-md shadow-sm text-sm font-medium text-[#667085] bg-white border-t border-b border-gray-200 rounded-l-lg rounded-r-lg hover:bg-gray-100 hover:text-[#5C59E8] focus:z-10 focus:ring-2 focus:ring-[#5C59E8] focus:text-[#5C59E8] "
-                  >
-                    <CalendarMonthIcon /> Select Dates
-                  </button>
                 </div>
               </div>
             </div>
-
             <div>
               <div className="block bg-transparent m-4 p-4 overflow-x-auto w-full ">
                 <table className="w-full shadow-md  border-2 rounded-2xl">
@@ -436,78 +393,69 @@ const Inward = () => {
                           onChange={() => handleSelectAll()}
                         />
                       </th>
-                      <th className="text-md px-6 py-3">Order Id</th>
-                      <th className="text-md px-6 py-3">Requisitioner Name</th>
-                      <th className="text-md px-6 py-3">Department</th>
-                      <th className="text-md px-6 py-3">Lab</th>
-                      <th className="text-md px-6 py-3">Item Type</th>
-                      <th className="text-md px-6 py-3">Approved By</th>
-                      <th className="text-md px-6 py-3 ">Approver Remark</th>
-                      <th className="text-md px-6 py-3 ">Status</th>
+                      <th className="text-md px-6 py-3">Sr.No</th>
+                      <th className="text-md px-6 py-3">Name of the Company</th>
+                      <th className="text-md px-6 py-3">Contact Person Name</th>
+                      <th className="text-md px-6 py-3">Mobile No</th>
+                      <th className="text-md px-6 py-3">Action</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white">
-                    {inward?.map((order) => (
-                      <tr key={order?._id}>
+                    {vendors?.map((vendor, index) => (
+                      <tr key={vendor?._id}>
                         <td className="text-md border-b text-center px-6  py-3">
                           <input
                             type="checkbox"
                             checked={selectedRows.some(
-                              (selectedRow) => selectedRow._id === order?._id
+                              (selectedRow) => selectedRow._id === vendor?._id
                             )}
                             onChange={() =>
-                              handleCheckboxChange(order?._id, order)
+                              handleCheckboxChange(vendor?._id, vendor)
                             }
                           />
                         </td>
                         <th className="text-md text-center border-b px-6 py-3 text-[#5C59E8]">
-                          <Link to={`/order-details-page/${order._id}`}>
-                            {order?._id.substring(0, 6)}
+                          <Link to={`/order-details-page/${vendor._id}`}>
+                            {index + 1}
                           </Link>
                         </th>
                         <td className="text-md text-center px-6  py-3 border-b">
-                          {order?.requisition_name}
+                          {vendor?.companyName}
+                        </td>
+
+                        <td className="text-md  border-b text-center px-6 py-3">
+                          {vendor?.contactPerson}
                         </td>
                         <td className="text-md  border-b text-center px-6 py-3">
-                          {order?.department}
+                          {vendor?.mobileNumber}
                         </td>
-                        <td className="text-md text-center  border-b px-6 py-3">
-                          {order?.lab}
-                        </td>
-                        <td className="text-md text-center  border-b px-6 py-3">
-                          {order?.itemtype}
-                        </td>
-                        <td className="text-md text-center  border-b px-6 py-3">
-                          {order?.verifierName}
-                        </td>
-
-                        <td className="text-md text-center  border-b px-6 py-3">
-                          {order?.approverremark}
-                        </td>
-
-                        <td className="text-md border-b text-center ">
-                          <select
-                            className="p-2 border rounded-md"
-                            value={order?.orderStatus}
-                            onChange={(e) => handleChange(e, order?._id)}
-                            defaultValue={"Select an option"}
-                          >
-                            <option value="">Select an option</option>
-                            <option value="Receieved">Receieved</option>
-                            <option value="Cancelled">Cancelled</option>
-                            <option value="Issues">Issues</option>
-                            <option value="Others">Other</option>
-                          </select>
+                        <td className="text-md px-5 py-3    bg-white border-b">
+                          <div className="flex justify-around">
+                            <button
+                              // onClick={() => handleEdit(order)}
+                              className="rounded-full p-2 border-slate-900 "
+                            >
+                              <EditIcon />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(vendor?._id)}
+                              className="rounded-full p-2   bg-red"
+                            >
+                              <DeleteIcon />
+                            </button>
+                            <button
+                              //  onClick={() => handleDelete(products?._id)}
+                              className="rounded-full  bg-red"
+                            >
+                              <VisibilityIcon />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-            </div>
-
-            <div>
-              <MyModal onClose={handleOnClose} visible={showMyModal} />
             </div>
           </div>
         </>
@@ -516,4 +464,4 @@ const Inward = () => {
   );
 };
 
-export default Inward;
+export default VendorList;

@@ -4,6 +4,7 @@ import Sidebar from "./components/Sidebar/Sidebar";
 import Home from "./components/Home/Home"
 import PageNotFound from "./components/404/PageNotFound"
 import InventoryPage from "./components/Inventory/InventoryPage";
+import AddInventory from "./components/Inventory/AddInventory";
 import Inward from "./components/Inward/Inward"
 import OrderPage from "./components/OrderPage/OrderPage"
 import RequisitionForm from "./components/Requistion/RequistionForm"
@@ -21,8 +22,11 @@ import RejectedOrdersPage from "./components/OrderPage/RejectedOrdersPage";
 import PurchaseOrder from "./components/OrderGeneration/PurchaseOrder";
 import WorkOrder from "./components/OrderGeneration/WorkOrder";
 import ContractOrder from "./components/ContractOrder/ContractOrder";
+import VendorList from "./components/Vendor/VendorList";
 import VendorMasterForm from "./components/Vendor/VendorMasterForm";
 import UserDetailPage from "./components/Users/UserDetailPage";
+import PurchaseOrderList from "./components/OrderGeneration/PurchaseOrderList";
+import WorkOrderList from "./components/OrderGeneration/WorkOrderList";
 
 function App() {
   const dispatch = useDispatch()
@@ -65,6 +69,18 @@ function App() {
             </Protected>
           }
         />
+
+        <Route
+          path="/add-inventory-page"
+          element={
+            <Protected>
+            <Sidebar>
+              <AddInventory />
+            </Sidebar>
+            </Protected>
+          }
+        />
+
         <Route
           path="/inward-page"
           element={
@@ -187,11 +203,41 @@ function App() {
           }
         />
         <Route
+          path="/Purchase-Order-List-page"
+          element={
+            <Protected>
+            <Sidebar>
+              < PurchaseOrderList />
+            </Sidebar>
+            </Protected>
+          }
+        />
+        <Route
+          path="/Work-Order-List-page"
+          element={
+            <Protected>
+            <Sidebar>
+              < WorkOrderList />
+            </Sidebar>
+            </Protected>
+          }
+        />
+        <Route
           path="/Vendor-Master-Form"
           element={
             <Protected>
             <Sidebar>
               < VendorMasterForm />
+            </Sidebar>
+            </Protected>
+          }
+        />
+        <Route
+          path="/Vendor-List-page"
+          element={
+            <Protected>
+            <Sidebar>
+              < VendorList />
             </Sidebar>
             </Protected>
           }

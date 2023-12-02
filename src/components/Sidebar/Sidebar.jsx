@@ -3,11 +3,11 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import InsertInvitationIcon from "@mui/icons-material/InsertInvitation";
-import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
-import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
-import AddTaskIcon from '@mui/icons-material/AddTask';
-import DvrIcon from '@mui/icons-material/Dvr';
-import HowToRegIcon from '@mui/icons-material/HowToReg';
+import RestoreFromTrashIcon from "@mui/icons-material/RestoreFromTrash";
+import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
+import AddTaskIcon from "@mui/icons-material/AddTask";
+import DvrIcon from "@mui/icons-material/Dvr";
+import HowToRegIcon from "@mui/icons-material/HowToReg";
 import {
   IconButton,
   Avatar,
@@ -37,7 +37,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useAlert } from "react-alert";
 import { logoutAction } from "../../Actions/userActions";
 import { useEffect } from "react";
-import  { useState } from 'react';
+import { useState } from "react";
 
 const SidebarContent = ({ onClose, ...rest }) => {
   const LinkItems = [
@@ -45,17 +45,30 @@ const SidebarContent = ({ onClose, ...rest }) => {
     { name: "Inventory", icon: InventoryIcon, link: "/inventory-page" },
     { name: "Orders", icon: ShoppingCartIcon, link: "/orders-page" },
     { name: "Users", icon: PeopleAltIcon, link: "/user-management-page" },
-    { name: "Requisition", icon: InsertDriveFileIcon, link: "/requisiton-page" },
+    {
+      name: "Requisition",
+      icon: InsertDriveFileIcon,
+      link: "/requisiton-page",
+    },
     { name: "Inward", icon: InsertInvitationIcon, link: "/inward-page" },
     { name: "Archive", icon: RestoreFromTrashIcon, link: "/archive-page" },
-    { name: "Order Generation", icon: AddTaskIcon, link: "/OrderGeneration-page" },
+    {
+      name: "Order Generation",
+      icon: AddTaskIcon,
+      link: "/OrderGeneration-page",
+    },
     { name: "Contract Order", icon: DvrIcon, link: "/Contract-Order-page" },
-    { name: "Vendor Master-Form ", icon: HowToRegIcon, link: "/Vendor-Master-Form" },
+    { name: "Vendor", icon: HowToRegIcon, link: "/Vendor-page" },
   ];
-  
+  const [isInventoryDropdownOpen, setInventoryDropdownOpen] = useState(false);
   const [isArchiveDropdownOpen, setArchiveDropdownOpen] = useState(false);
   const [isOrdersDropdownOpen, setOrdersDropdownOpen] = useState(false);
   const [isOrderGenerationOpen, setOrderGenerationOpen] = useState(false);
+  const [isVendorOpen, setVendorOpen] = useState(false);
+
+  const toggleInventoryDropdown = () => {
+    setInventoryDropdownOpen(!isInventoryDropdownOpen);
+  };
 
   const toggleArchiveDropdown = () => {
     setArchiveDropdownOpen(!isArchiveDropdownOpen);
@@ -66,8 +79,11 @@ const SidebarContent = ({ onClose, ...rest }) => {
   };
 
   const toggleOrderGenerationDropdown = () => {
-    setOrderGenerationOpen(!isOrderGenerationOpen)
-  }
+    setOrderGenerationOpen(!isOrderGenerationOpen);
+  };
+  const toggleVendorDropdown = () => {
+    setVendorOpen(!isVendorOpen);
+  };
 
   return (
     <Box
@@ -82,14 +98,14 @@ const SidebarContent = ({ onClose, ...rest }) => {
       className="hide-scrollbar"
       {...rest}
     >
-      <div className='p-2'>
+      <div className="p-2">
         <div className="flex flex-row items-center ">
           <div className="p-2 justify-center">
             {" "}
             <img className=" w-8 h-6" src={authImage} />
           </div>{" "}
           <div className="items-center  ">
-            <span className='text-lg items-center font-bold'>Inventory MG</span>
+            <span className="text-lg items-center font-bold">Inventory MG</span>
           </div>
         </div>
         <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} />
@@ -97,78 +113,137 @@ const SidebarContent = ({ onClose, ...rest }) => {
 
       {LinkItems.map((link) => (
         <div key={link.link}>
-          {link.name === 'Archive' ? (
+          {link.name === "Archive" ? (
             <div>
               <NavItem
                 icon={link.icon}
                 className="text-[#667085] hover:text-white"
                 onClick={toggleArchiveDropdown}
               >
-                <p className='w-full h-full font-bold'>{link.name}</p>
+                <p className="w-full h-full font-bold">{link.name}</p>
               </NavItem>
               {isArchiveDropdownOpen && (
                 <div className="pl-1  flex flex-col ml-2">
                   <Link to="/order-archive-page">
-                    <div className='p-2 ml-2 my-1 w-3/4 rounded-lg hover:bg-[#5C59E8] text-sm h-full font-bold text-[#667085] hover:text-white '>
+                    <div className="p-2 ml-2 my-1 w-3/4 rounded-lg hover:bg-[#5C59E8] text-sm h-full font-bold text-[#667085] hover:text-white ">
                       <ArrowRightAltIcon /> Orders Archive
                     </div>
                   </Link>
                   <Link to="/inward-archive-page">
-                    <div className='p-2 my-1 ml-2 rounded-lg hover:bg-[#5C59E8] text-sm w-3/4 h-full font-bold text-[#667085] hover:text-white '>
+                    <div className="p-2 my-1 ml-2 rounded-lg hover:bg-[#5C59E8] text-sm w-3/4 h-full font-bold text-[#667085] hover:text-white ">
                       <ArrowRightAltIcon /> Inward Archive
                     </div>
                   </Link>
                 </div>
               )}
             </div>
-          ) : link.name === 'Orders' ? (
+          ) : link.name === "Orders" ? (
             <div>
               <NavItem
                 icon={link.icon}
                 className="text-[#667085] hover:text-white"
                 onClick={toggleOrdersDropdown}
               >
-                <p className='w-full h-full font-bold'>{link.name}</p>
+                <p className="w-full h-full font-bold">{link.name}</p>
               </NavItem>
               {isOrdersDropdownOpen && (
                 <div className="pl-1  flex flex-col ml-2">
-                 <Link to="/orders-page">
-                  <div className='p-2 ml-2 my-1 w-3/4 rounded-lg hover:bg-[#5C59E8] text-sm h-full font-bold text-[#667085] hover:text-white '>
+                  <Link to="/orders-page">
+                    <div className="p-2 ml-2 my-1 w-3/4 rounded-lg hover:bg-[#5C59E8] text-sm h-full font-bold text-[#667085] hover:text-white ">
                       <ArrowRightAltIcon /> All Orders
                     </div>
                   </Link>
                   <Link to="/approved-orders-page">
-                  <div className='p-2 ml-2 my-1 w-3/4 rounded-lg hover:bg-[#5C59E8] text-sm h-full font-bold text-[#667085] hover:text-white '>
+                    <div className="p-2 ml-2 my-1 w-3/4 rounded-lg hover:bg-[#5C59E8] text-sm h-full font-bold text-[#667085] hover:text-white ">
                       <ArrowRightAltIcon /> Approved Orders
                     </div>
                   </Link>
                   <Link to="/rejected-orders-page">
-                  <div className='p-2 ml-2 my-1 w-3/4 rounded-lg hover:bg-[#5C59E8] text-sm h-full font-bold text-[#667085] hover:text-white '>
+                    <div className="p-2 ml-2 my-1 w-3/4 rounded-lg hover:bg-[#5C59E8] text-sm h-full font-bold text-[#667085] hover:text-white ">
                       <ArrowRightAltIcon /> Rejected Orders
                     </div>
                   </Link>
                 </div>
               )}
             </div>
-          ) : link.name === 'Order Generation' ? (
+          ) : link.name === 'Inventory' ? (
+            <div>
+              <NavItem
+                icon={link.icon}
+                className="text-[#667085] hover:text-white"
+                onClick={toggleInventoryDropdown}
+              >
+                <p className='w-full h-full font-bold'>{link.name}</p>
+              </NavItem>
+              {isInventoryDropdownOpen && (
+                <div className="pl-1  flex flex-col ml-2">
+                 <Link to="/inventory-page">
+                  <div className='p-2 ml-2 my-1 w-3/4 rounded-lg hover:bg-[#5C59E8] text-sm h-full font-bold text-[#667085] hover:text-white '>
+                      <ArrowRightAltIcon /> Inventory List
+                    </div>
+                  </Link>
+                  <Link to="/add-inventory-page">
+                  <div className='p-2 ml-2 my-1 w-3/4 rounded-lg hover:bg-[#5C59E8] text-sm h-full font-bold text-[#667085] hover:text-white '>
+                      <ArrowRightAltIcon /> Add Inventory
+                    </div>
+                  </Link>
+                </div>
+              )}
+            </div>
+          ) :  link.name === "Order Generation" ? (
             <div>
               <NavItem
                 icon={link.icon}
                 className="text-[#667085] hover:text-white"
                 onClick={toggleOrderGenerationDropdown}
               >
-                <p className='w-full h-full font-bold'>{link.name}</p>
+                <p className="w-full h-full font-bold">{link.name}</p>
               </NavItem>
               {isOrderGenerationOpen && (
                 <div className="pl-1  flex flex-col ml-2">
-                 <Link to="/Purchase-Order-page">
-                  <div className='p-2 ml-2 my-1 w-3/4 rounded-lg hover:bg-[#5C59E8] text-sm h-full font-bold text-[#667085] hover:text-white '>
+                  <Link to="/Purchase-Order-page">
+                    <div className="p-2 ml-2 my-1 w-3/4 rounded-lg hover:bg-[#5C59E8] text-sm h-full font-bold text-[#667085] hover:text-white ">
                       <ArrowRightAltIcon /> Purchase Order
                     </div>
                   </Link>
                   <Link to="/Work-Order-page">
-                  <div className='p-2 ml-2 my-1 w-3/4 rounded-lg hover:bg-[#5C59E8] text-sm h-full font-bold text-[#667085] hover:text-white '>
+                    <div className="p-2 ml-2 my-1 w-3/4 rounded-lg hover:bg-[#5C59E8] text-sm h-full font-bold text-[#667085] hover:text-white ">
                       <ArrowRightAltIcon /> Work Order
+                    </div>
+                  </Link>
+                  <Link to="/Purchase-Order-List-page">
+                    <div className="p-2 ml-2 my-1 w-3/4 rounded-lg hover:bg-[#5C59E8] text-sm h-full font-bold text-[#667085] hover:text-white ">
+                      <ArrowRightAltIcon /> Purchase Order
+                      <div className="px-7">List</div>
+                    </div>
+                  </Link>
+                  <Link to="/Work-Order-List-page">
+                    <div className="p-2 ml-2 my-1 w-3/4 rounded-lg hover:bg-[#5C59E8] text-sm h-full font-bold text-[#667085] hover:text-white ">
+                      <ArrowRightAltIcon /> Work Order List
+                    </div>
+                  </Link>
+                </div>
+              )}
+            </div>
+          ) : link.name === "Vendor" ? (
+            <div>
+              <NavItem
+                icon={link.icon}
+                className="text-[#667085] hover:text-white"
+                onClick={toggleVendorDropdown}
+              >
+                <p className="w-full h-full font-bold">{link.name}</p>
+              </NavItem>
+              {isVendorOpen && (
+                <div className="pl-1  flex flex-col ml-2">
+                  <Link to="/Vendor-Master-Form">
+                    <div className="p-2 ml-2 my-1 w-3/4 rounded-lg hover:bg-[#5C59E8] text-sm h-full font-bold text-[#667085] hover:text-white ">
+                      <ArrowRightAltIcon /> Vendor Form
+                    </div>
+                  </Link>
+                  <Link to="/Vendor-List-page">
+                    <div className="p-2 ml-2 my-1 w-3/4 rounded-lg hover:bg-[#5C59E8] text-sm h-full font-bold text-[#667085] hover:text-white ">
+                      <ArrowRightAltIcon /> Vendor List
                     </div>
                   </Link>
                 </div>
@@ -176,8 +251,11 @@ const SidebarContent = ({ onClose, ...rest }) => {
             </div>
           ) : (
             <Link to={link.link}>
-              <NavItem icon={link.icon} className="text-[#667085] hover:text-white">
-                <p className='w-full h-full font-bold'>{link.name}</p>
+              <NavItem
+                icon={link.icon}
+                className="text-[#667085] hover:text-white"
+              >
+                <p className="w-full h-full font-bold">{link.name}</p>
               </NavItem>
             </Link>
           )}
@@ -206,10 +284,8 @@ const NavItem = ({ icon: IconComponent, children, ...rest }) => {
         _hover={{
           bg: "#5C59E8",
           color: "white",
-        
         }}
         {...rest}
-        
       >
         {IconComponent && (
           <Icon
@@ -243,7 +319,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
   }, [navigate, user, alert]);
   return (
     <Flex
-     className=""
+      className=""
       ml={{ base: 0, md: 60 }}
       px={{ base: 4, md: 4 }}
       height="20"
@@ -333,7 +409,7 @@ const Sidebar = ({ children }) => {
       </Drawer>
 
       <MobileNav onOpen={onOpen} />
-      <Box ml={{ base: 0, md: 60 }} p="4"  className="bg-[#F9F9FC] min-h-screen">
+      <Box ml={{ base: 0, md: 60 }} p="4" className="bg-[#F9F9FC] min-h-screen">
         {children}
       </Box>
     </Box>

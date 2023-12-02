@@ -107,7 +107,7 @@ const VendorMasterForm = () => {
         <span className="mx-4 my-4 text-lg font-semibold ">Vendor</span>
         <div className="mx-4 mt-4">
         <label className="text-[#4D5464] font-semibold">Name</label>
-        <input type="text" {...register("vendorname")} className="border p-1 rounded-md text-[#858D9D] focus:border-gray-400 px-1  w-full  focus:outline-none focus:ring-0 "></input>
+        <input type="text" {...register("vendorName")} className="border p-1 rounded-md text-[#858D9D] focus:border-gray-400 px-1  w-full  focus:outline-none focus:ring-0 "></input>
         </div>
         <div className="mx-4 my-2">
         <label className="text-[#4D5464] font-semibold ">Designation</label>
