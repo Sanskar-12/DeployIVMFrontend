@@ -1,7 +1,8 @@
 import axios from "axios";
+import { server } from "../store";
 // import { server } from "../store";
 
-export const getAllInventoryAction = (search="",currentPage) => async (dispatch) => {
+export const getAllInventoryAction = () => async (dispatch) => {
   try {
     dispatch({
       type: "getAllInventoryRequest",
@@ -11,10 +12,8 @@ export const getAllInventoryAction = (search="",currentPage) => async (dispatch)
     //   withCredentials: true,
     // };
 
-    const { data } = await axios.get(`/api/v1/get/all/product?keyword=${search}&page=${currentPage}`,{
-      headers: {
-        "Content-Type": "application/json",
-      },
+    const { data } = await axios.get(`${server}/get/inventory/products`,{
+      
       withCredentials: true,
     });
 
@@ -40,7 +39,7 @@ export const deleteInventoryAction = (productId) => async (dispatch) => {
     //   withCredentials: true,
     // };
 
-   await axios.delete(`/api/v1/delete/product/${productId}`,{
+   await axios.delete(`${server}/delete/product/${productId}`,{
     withCredentials:true
    });
 

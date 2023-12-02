@@ -38,7 +38,7 @@ export const getVendorDataAction = () => async (dispatch) => {
       type: "getVendorDataRequest",
     });
 
-    const { data } = await axios.get(`/api/v1/vendor/get-vendor`, {
+    const { data } = await axios.get(`${server}/vendor/get-vendor`, {
       withCredentials: true,
     });
     dispatch({
@@ -81,7 +81,7 @@ export const deleteVendorByIDAction = (id) => async (dispatch) => {
       type: "deleteVendorByIdRequest",
     });
 
-    const { data } = await axios.delete(`/api/v1/vendor/delete/vendor/${id}`,{
+    const { data } = await axios.delete(`${server}/vendor/delete/vendor/${id}`,{
       withCredentials:true
     });
     dispatch({

@@ -86,7 +86,7 @@ export const getAllPurchaseOrderDataAction = () => async (dispatch) => {
     };
 
     const { data } = await axios.get(
-      `/api/v1/get/all/purchaseorder`, 
+      `${server}/get/all/purchaseorder`, 
       config
     );
     dispatch({

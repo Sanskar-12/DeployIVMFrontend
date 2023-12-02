@@ -86,7 +86,7 @@ export const getAllWorkOrderDataAction = () => async (dispatch) => {
     };
 
     const { data } = await axios.get(
-      `/api/v1/get/all/workorder`, 
+      `${server}/get/all/workorder`, 
       config
     );
     dispatch({
@@ -115,7 +115,7 @@ export const deleteWorkOrderDataAction = (id) => async (dispatch) => {
     };
 
     const { data } = await axios.delete(
-      `/api/v1/delete/workorder/${id}`, 
+      `${server}/delete/workorder/${id}`, 
       config
     );
     dispatch({
