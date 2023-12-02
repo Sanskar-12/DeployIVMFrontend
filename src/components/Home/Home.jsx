@@ -9,9 +9,9 @@ const Home = () => {
       <TopPanel />
       <ItemsDiv />
       <LineChart />
-      <div className="grid grid-cols-1 md:grid-cols-2 mt-8 gap-8">
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 mt-8 gap-8">
         <ProductCard />
-      </div>
+      </div> */}
     </div>
   );
 };
