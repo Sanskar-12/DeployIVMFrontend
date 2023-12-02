@@ -13,7 +13,6 @@ export const getAllInventoryAction = () => async (dispatch) => {
     // };
 
     const { data } = await axios.get(`${server}/get/inventory/products`,{
-      
       withCredentials: true,
     });
 
@@ -23,7 +22,7 @@ export const getAllInventoryAction = () => async (dispatch) => {
     });
   } catch (error) {
     dispatch({
-      type: "getAllinventoryFail",
+      type: "getAllInventoryFail",
       payload: error.response.data.message,
     });
   }
