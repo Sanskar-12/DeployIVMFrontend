@@ -40,7 +40,9 @@ export const deleteInventoryAction = (productId) => async (dispatch) => {
     //   withCredentials: true,
     // };
 
-   await axios.delete(`/api/v1/delete/product/${productId}`);
+   await axios.delete(`/api/v1/delete/product/${productId}`,{
+    withCredentials:true
+   });
 
     dispatch({
       type: "deleteInventorySuccess",
