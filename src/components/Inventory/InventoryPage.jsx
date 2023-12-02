@@ -164,7 +164,7 @@ const InventoryPage = () => {
     setSelectAll(!selectAll);
     setSelectedRows((prevSelectedRows) => {
       if (!selectAll) {
-        return products;
+        return products.products;
       } else {
         return [];
       }
